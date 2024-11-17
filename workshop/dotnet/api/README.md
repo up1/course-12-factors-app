@@ -324,16 +324,17 @@ Testing
 
 
 Working with Docker Compose = `docker-compose.yml`
-```
-```
 
-Run
+## 5. Graceful Shutdown
 ```
-$docker compose build
-$docker compose up -d
-$docker compose ps
-```
+var app = builder.Build();
 
-Testing
-* http://localhost:8080/api/Products
+// Handle graceful shutdown
+var lifetime = app.Lifetime;
+lifetime.ApplicationStopping.Register(() =>
+{
+    Console.WriteLine("Application is stopping...");
+    // Additional cleanup logic (e.g., release resources, close connections)
+});
+```
 

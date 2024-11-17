@@ -25,6 +25,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
+// Handle graceful shutdown
+var lifetime = app.Lifetime;
+lifetime.ApplicationStopping.Register(() =>
+{
+    Console.WriteLine("Application is stopping...");
+    // Additional cleanup logic (e.g., release resources, close connections)
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
