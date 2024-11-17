@@ -4,6 +4,35 @@
 
 ## Working with Docker Compose = `docker-compose.yml`
 ```
+services:
+  api:
+    image: api:1.0
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - POSTGRESQL_CONNECTION=Host=db;Database=mydb;Username=myuser;Password=mypassword
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  db:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/data.sql:/docker-entrypoint-initdb.d/data.sql
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 ```
 
 Build and Run
