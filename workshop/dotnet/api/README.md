@@ -416,6 +416,7 @@ builder.Services.AddSingleton<IConfigService, ConfigService>(); // Singleton for
   * Log
   * Metric
   * Trace
+* [Example](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-prgrja-example)
 
 ### 6.1 Add depedencies
 ```
