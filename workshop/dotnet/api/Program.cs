@@ -5,9 +5,17 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using System.Diagnostics.Metrics;
 using System.Diagnostics;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(new CompactJsonFormatter())
+    .CreateLogger();
+
+builder.Services.AddSerilog(Log.Logger);
 
 
 // Add services to the container.
@@ -76,6 +84,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(appSettings.PostgreSqlConnection));
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // Configure the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();

@@ -475,6 +475,27 @@ otel.WithTracing(tracing =>
 app.MapPrometheusScrapingEndpoint();
 ```
 
+Write log + trace + metric
+```
+// Demo with metric
+app.MapGet("/hi", (ILogger<Program> logger) =>
+{
+    // Create a new Activity scoped to the method
+    using var activity = greeterActivitySource.StartActivity("HelloActivity");
+
+    // Log a message
+    logger.LogInformation("Hello message logged!");
+
+    // Increment the custom counter
+    countHello.Add(1);
+
+    // Add a tag to the Activity
+    activity?.SetTag("say", "Hello World!");
+
+    return "Hello World!";
+});
+```
+
 ### Run and test
 ```
 $dotnet run
@@ -534,4 +555,43 @@ Resource associated with Activity:
     telemetry.sdk.name: opentelemetry
     telemetry.sdk.language: dotnet
     telemetry.sdk.version: 1.9.0
+```
+
+### Structured log with [Serilog](https://serilog.net/)
+* [JSON Format](https://github.com/serilog/serilog-formatting-compact)
+
+Add dependencies
+```
+$dotnet add package Serilog
+$dotnet add package Serilog.AspNetCore
+$dotnet add package Serilog.Sinks.Console
+$dotnet add package Serilog.Formatting.Compact
+```
+
+Configuration
+```
+using Serilog;
+using Serilog.Formatting.Compact;
+
+// Configure Serilog + JSON format + Console
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(new CompactJsonFormatter())
+    .CreateLogger();
+
+
+// HTTP request log
+app.UseSerilogRequestLogging();
+```
+
+Run
+```
+$dotnet run
+```
+
+Log message
+```
+{"@t":"2024-11-18T02:40:01.2060000Z","@mt":"Now listening on: {address}","address":"http://localhost:5250","EventId":{"Id":14,"Name":"ListeningOnAddress"},"SourceContext":"Microsoft.Hosting.Lifetime"}
+{"@t":"2024-11-18T02:40:01.2185210Z","@mt":"Application started. Press Ctrl+C to shut down.","SourceContext":"Microsoft.Hosting.Lifetime"}
+
+{"@t":"2024-11-18T02:40:06.9086210Z","@mt":"Hello message logged!","@tr":"29aea05c3aa44c7e8b8b83c2c7e15a9a","@sp":"dc0dbd57455711aa","SourceContext":"Program","RequestId":"0HN87F9829RFV:00000001","RequestPath":"/hi","ConnectionId":"0HN87F9829RFV"}
 ```
