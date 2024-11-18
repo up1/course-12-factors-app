@@ -330,7 +330,7 @@ Working with Docker Compose = `docker-compose.yml`
 * Fast startup
 
 
-### Graceful shutdown v1
+### 5.1 Graceful shutdown v1
 ```
 var app = builder.Build();
 
@@ -343,7 +343,7 @@ lifetime.ApplicationStopping.Register(() =>
 });
 ```
 
-### Graceful shutdown in background service
+### 5.2 Graceful shutdown in background service
 
 File `SampleBackgroundService.cs`
 ```
@@ -400,3 +400,13 @@ Background service canceled.
 Background service stopping.
 ```
 
+### 5.4 Improve startup time of app/service
+* Optimized dependency injection
+  * Register services with scoped, singleton, or transient lifetimes based on their usage.
+* Lazy Database Initialization
+
+Register services with scoped 
+```
+builder.Services.AddScoped<IMyService, MyService>(); // Scoped for per-request lifecycle
+builder.Services.AddSingleton<IConfigService, ConfigService>(); // Singleton for long-lived dependencies
+```
