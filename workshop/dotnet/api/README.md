@@ -325,7 +325,12 @@ Testing
 
 Working with Docker Compose = `docker-compose.yml`
 
-## 5. Graceful Shutdown
+## 5. Disposability principle in .NET
+* Graceful shutdown with cancellation tokens
+* Fast startup
+
+
+### Graceful shutdown v1
 ```
 var app = builder.Build();
 
@@ -336,5 +341,62 @@ lifetime.ApplicationStopping.Register(() =>
     Console.WriteLine("Application is stopping...");
     // Additional cleanup logic (e.g., release resources, close connections)
 });
+```
+
+### Graceful shutdown in background service
+
+File `SampleBackgroundService.cs`
+```
+namespace api;
+
+public class SampleBackgroundService : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        Console.WriteLine("Background service started.");
+
+        try
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                Console.WriteLine("Background service is running...");
+                await Task.Delay(1000, stoppingToken); // Simulate work
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            Console.WriteLine("Background service canceled.");
+        }
+        finally
+        {
+            Console.WriteLine("Background service stopping.");
+            // Cleanup logic
+        }
+    }
+}
+```
+
+Resgister to app
+```
+// Add background service
+builder.Services.AddHostedService<SampleBackgroundService>();
+```
+
+Run
+```
+$dotnet run
+Background service is running...
+Background service is running...
+Background service is running...
+Background service is running...
+Background service is running...
+Background service is running...
+^Cinfo: Microsoft.Hosting.Lifetime[0]
+
+=== Ctrl + C to stop server ===
+      Application is shutting down...
+Application is stopping...
+Background service canceled.
+Background service stopping.
 ```
 

@@ -19,6 +19,9 @@ var appSettings = new AppSettings
 builder.Configuration.Bind(appSettings);
 builder.Services.AddSingleton(appSettings);
 
+// Add background service
+builder.Services.AddHostedService<SampleBackgroundService>();
+
 // Add postgresql connection string to the configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(appSettings.PostgreSqlConnection));
