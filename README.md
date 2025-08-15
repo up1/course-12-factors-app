@@ -5,6 +5,7 @@
 * [.NET](https://github.com/up1/course-12-factors-app/tree/main/workshop/dotnet)
 * [Spring Boot 3](https://github.com/up1/workshop-spring-opentelemetry-2024)
 * [Go](https://github.com/up1/demo-go-12-factor/)
+* NodeJS
 
 ## Outlines
 * History of 12-factors app
